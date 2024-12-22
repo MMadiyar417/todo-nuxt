@@ -2,27 +2,47 @@
   <div class="task-card">
     <div class="task-card__header">
       <div class="task-card__actions">
-        <span>Edit</span>
-        <span>Delete</span>
-        <span>Complete</span>
+        <span @click="editTask">Edit</span>
+        <span @click="deleteTask">Delete</span>
       </div>
-      <p class="task-card__title">This is title</p>
-      <p class="task-card__info-text">Created on: 14th April 2024</p>
+      <p class="task-card__title">{{ task.title }}</p>
+      <p class="task-card__info-text">Created on: {{ formattedDate }}</p>
     </div>
     <div class="task-card__footer">
-      <p class="task-card__description">Task description</p>
+      <p class="task-card__description">{{ task.description }}</p>
       <div class="task-card__meta">
-        <p>Expiring date</p>
+        <p>{{ task.expireDate }}</p>
         <img src="https://www.w3schools.com/howto/img_avatar.png" alt="avatar" class="task-card__avatar">
       </div>
     </div>
   </div>
 </template>
 
-<script lang="ts" setup></script>
+<script setup>
+import { defineProps, defineEmits } from 'vue'
+
+const props = defineProps({
+  task: {
+    type: Object,
+    required: true
+  }
+})
+
+const emit = defineEmits(['delete-task', 'edit-task'])
+
+const formattedDate = new Date(props.task.id).toLocaleString() 
+
+const deleteTask = () => {
+  emit('delete-task', props.task.id)
+}
+
+const editTask = () => {
+  emit('edit-task', props.task.id)
+}
+</script>
 
 <style scoped lang="scss">
-@import '~/assets/styles.scss';
+@use '~/assets/styles.scss' as *;
 
 .task-card {
   background-color: var(--task-card-bg);
@@ -67,6 +87,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    color: var(--text-error);
   }
 
   &__avatar {
@@ -78,7 +99,7 @@
   &__description {
     margin-top: 0.25rem; 
     color: var(--text-light);
-  }
+  } 
 
   &__info-text {
     font-size: 0.75rem;

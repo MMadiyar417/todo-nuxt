@@ -2,68 +2,62 @@
     <div class="add-task-dialog">
       <div class="add-task-dialog__content">
         <div class="add-task-dialog__header">
-          <h2>Add new task</h2>
+          <h2>Edit task</h2>
+          <button @click="close" class="add-task-dialog__close-btn">X</button>
         </div>
         <div class="add-task-dialog__body">
           <label for="title" class="add-task-dialog__label">Task title</label>
-          <input 
-            type="text" 
-            id="title" 
-            class="add-task-dialog__input"
-            v-model="title"
-            >
+          <input type="text" id="title" class="add-task-dialog__input" v-model="title">
           <label for="description" class="add-task-dialog__label">Description</label>
-          <input 
-            type="text"
-            id="description" 
-            class="add-task-dialog__input"
-            v-model="description"
-            >
+          <input type="text" id="description" class="add-task-dialog__input" v-model="description">
           <label for="date" class="add-task-dialog__label">Expire date</label>
-          <input 
-            type="date" 
-            id="expireDate" 
-            class="add-task-dialog__input"
-            v-model="expireDate"
-            >
-          <div class="add-task-dialog__action" >
+          <input type="date" id="date" class="add-task-dialog__input" v-model="expireDate">
+          <div class="add-task-dialog__action">
             <button @click="close" class="add-task-dialog__close-btn">Cansel</button>
-            <button @click="submitTask" class="btn add-task-dialog__submit-btn">Submit</button>
+            <button class="btn add-task-dialog__submit-btn" @click="submitChanges">Submit</button>
           </div>
         </div>
-      </div>      
+      </div>
     </div>
   </template>
   
-  <script lang="ts" setup>
-  import { ref } from 'vue'
-
-
-  const emit = defineEmits()
-  const title = ref('')
-  const description = ref('')
-  const expireDate = ref('')
-
-  const submitTask = () => {
-    if (title.value && description.value) {
-      const newTask = {
-        id: Date.now(), 
-        title: title.value,
-        description: description.value,
-        expireDate: expireDate.value
-      }
-      emit('add-task', newTask)
-      close() 
-    } else {
-      alert("Пожалуйста, заполните все поля")
-    }
+  <script setup>
+  import { ref, watch } from 'vue'
+  
+  const emit = defineEmits(['close', 'save-changes'])
+  
+  const props = defineProps({
+    task: {
+      type: Object,
+      required: true
+    } | null
+  })
+  
+  const title = ref(props.task.title)
+  const description = ref(props.task.description)
+  const expireDate = ref(props.task.expireDate)
+  
+  watch(() => props.task, (newTask) => {
+    title.value = newTask.title
+    description.value = newTask.description
+    expireDate.value = newTask.expireDate
+  }, { deep: true })
+  
+  const submitChanges = () => {
+    emit('save-changes', {
+      ...props.task,
+      title: title.value,
+      description: description.value,
+      expireDate: expireDate.value
+    })
+    close()
   }
+  
   const close = () => {
-    emit('close')
-    title.value = ''
-    description.value = ''
-    expireDate.value = ''
-  }
+    const confirmation = window.confirm('Вы уверены, что хотите отметить редактирование?')
+      if (confirmation) {  
+         emit('close')
+  }}
   </script>
   
   <style  lang="scss">
@@ -144,7 +138,7 @@
 
   &__action {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
   }
 
   &__submit-btn {

@@ -3,19 +3,35 @@
     <h2>Plan Your Day with To-Do Lists</h2>
     <div class="todo__task-list">
       <div class="todo__add" >
-        <button class="btn todo__add-btn" @click="toggleDialog" >Add new task</button>
+        <button class="btn todo__add-btn" @click="openModal" >Add new task</button>
       </div>
       <h3>Active tasks</h3>
-      <div v-for="(item, index) in [1, 2, 3, 4]" :key="index">
-        <TaskCard />
-      </div>
+      <div v-for="(task) in tasks" :key="task.id">
+      <TaskCard
+        :task="task"
+        @delete-task="deleteTask"
+        @edit-task="openEditModal(task)"
+      />
+    </div>
 
       <h3>Completed Task</h3>
-      <div v-for="(item, index) in [1, 2, 3, 4]" :key="index">
+      <!-- <div v-for="(item, index) in [1, 2, 3, 4]" :key="index">
         <TaskCard />
-      </div>
+      </div> -->
     </div>
-    <add-task v-if="showDialog" @close="toggleDialog" ></add-task>
+    <AddTask
+      v-if="isModalOpen"
+      @close="closeModal"
+      @add-task="addNewTask"
+    />
+    <EditTask
+      v-if="isEditModalOpen"
+      :task="selectedTask"
+      @close="closeEditModal"
+      @save-changes="saveTaskChanges"
+    />
+
+
   </div>
 </template>
 
@@ -24,16 +40,84 @@ import AddTask from "~/components/AddTask.vue";
 import TaskCard from "~/components/TaskCard.vue";
 import { ref } from "vue";
 
-const showDialog = ref(false);
 
-function toggleDialog() {
-  console.log('clicked');  
-  showDialog.value = !showDialog.value;
+
+const tasks = ref([
+  { id: 1, title: 'Задача 1', description: 'Описание задачи 1', expireDate: '2024-12-23' },
+  { id: 2, title: 'Задача 2', description: 'Описание задачи 2', expireDate: '2024-12-23' },
+  { id: 3, title: 'Задача 3', description: 'Описание задачи 3', expireDate: '2024-12-23' },
+])
+
+const isModalOpen = ref(false)
+
+const openModal = () => {
+  isModalOpen.value = true
 }
+
+const closeModal = () => {
+  isModalOpen.value = false
+}
+
+const addNewTask = (newTask: { id: number; title: string; description: string; expireDate: string; }) => {
+  tasks.value.push(newTask)
+  console.log('Обновленный список задач:', tasks.value) 
+
+}
+
+// const deleteTask = (taskId: number) => {
+//   tasks.value = tasks.value.filter(task => task.id !== taskId)
+// }
+
+// const editTask = (taskId: number) => {
+//   const task = tasks.value.find(task => task.id === taskId)
+//   if (task) {
+//     console.log('Редактирование задачи:', task)
+//   }
+// }
+
+
+const isEditModalOpen = ref(false)
+type Task = {
+  id: number;
+  title: string;
+  description: string;
+  expireDate: string;
+}
+
+const selectedTask = ref<Task | null>(null)
+
+
+const openEditModal = (task: Task) => {
+  selectedTask.value = { ...task }
+  isEditModalOpen.value = true
+}
+
+const closeEditModal = () => {
+  isEditModalOpen.value = false
+  selectedTask.value = null
+}
+
+const saveTaskChanges = (updatedTask: Task) => {
+  const taskIndex = tasks.value.findIndex((t) => t.id === updatedTask.id)
+  if (taskIndex !== -1) {
+    tasks.value[taskIndex] = updatedTask
+  }
+  closeEditModal()
+}
+
+const deleteTask = (taskId: number) => {
+  const confirmation = window.confirm('Вы уверены, что хотите удалить эту задачу?')
+  if (confirmation) {
+    tasks.value = tasks.value.filter((task) => task.id !== taskId)
+  } else {
+    alert('Удаление отменено.')
+  }
+}
+
 </script>
 
 <style  lang="scss">
-@import '~/assets/styles.scss';
+@use '~/assets/styles.scss' as *;
 
 .todo {
   width: 100%;
@@ -58,6 +142,7 @@ function toggleDialog() {
       padding: 0.625rem 1.5625rem; 
       border: none;
       border-radius: 0.25rem;
+      margin-right: 1.25rem;
       cursor: pointer;
       -webkit-transition: background-color 0.3s ease; 
       transition: background-color 0.3s ease; 
@@ -69,10 +154,12 @@ function toggleDialog() {
   }
 
   h2 {
+    margin: 1.25rem;
     font-size: 1.5rem;
   }
 
   h3 {
+    margin: 1.25rem;
     font-size: 1.25rem; 
     margin-top: 1.25rem; 
   }
