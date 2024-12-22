@@ -1,70 +1,95 @@
 <template>
-    <div class="add-task-dialog">
-      <div class="add-task-dialog__content">
-        <div class="add-task-dialog__header">
-          <h2>Add new task</h2>
-        </div>
-        <div class="add-task-dialog__body">
-          <label for="title" class="add-task-dialog__label">Task title</label>
+  <div class="add-task-dialog">
+    <div class="add-task-dialog__content">
+      <div class="add-task-dialog__header">
+        <h2>Add new task</h2>
+      </div>
+      <div class="add-task-dialog__body">
+        <label for="title" class="add-task-dialog__label">Task title</label>
+        <input 
+          type="text" 
+          id="title" 
+          class="add-task-dialog__input"
+          v-model="title"
+        />
+
+        <div v-for="(todo, index) in todos" :key="index" class="add-task-dialog__todo">
+          <label :for="'todo-' + index" class="add-task-dialog__label">Subtask {{ index + 1 }}</label>
           <input 
             type="text" 
-            id="title" 
+            v-model="todo.text" 
+            :id="'todo-' + index"
             class="add-task-dialog__input"
-            v-model="title"
-            >
-          <label for="description" class="add-task-dialog__label">Description</label>
-          <input 
-            type="text"
-            id="description" 
-            class="add-task-dialog__input"
-            v-model="description"
-            >
-          <label for="date" class="add-task-dialog__label">Expire date</label>
-          <input 
-            type="date" 
-            id="expireDate" 
-            class="add-task-dialog__input"
-            v-model="expireDate"
-            >
-          <div class="add-task-dialog__action" >
-            <button @click="close" class="add-task-dialog__close-btn">Cansel</button>
-            <button @click="submitTask" class="btn add-task-dialog__submit-btn">Submit</button>
-          </div>
+            placeholder="Subtask text"
+          />
+          <label>
+            <input 
+              type="checkbox" 
+              v-model="todo.completed"
+            />
+            Completed
+          </label>
+          <button @click="removeTodo(index)" class="add-task-dialog__remove-btn">Remove</button>
         </div>
-      </div>      
+
+        <button @click="addTodo" class="add-task-dialog__add-btn">Add Subtask</button>
+
+        <label for="date" class="add-task-dialog__label">Expire date</label>
+        <input 
+          type="date" 
+          id="expireDate" 
+          class="add-task-dialog__input"
+          v-model="expireDate"
+        />
+
+        <div class="add-task-dialog__action">
+          <button @click="close" class="add-task-dialog__close-btn">Cancel</button>
+          <button @click="submitTask" class="btn add-task-dialog__submit-btn">Submit</button>
+        </div>
+      </div>
     </div>
-  </template>
-  
-  <script lang="ts" setup>
-  import { ref } from 'vue'
+  </div>
+</template>
 
+<script setup lang="ts">
+import { ref } from 'vue'
 
-  const emit = defineEmits()
-  const title = ref('')
-  const description = ref('')
-  const expireDate = ref('')
+const emit = defineEmits()
 
-  const submitTask = () => {
-    if (title.value && description.value) {
-      const newTask = {
-        id: Date.now(), 
-        title: title.value,
-        description: description.value,
-        expireDate: expireDate.value
-      }
-      emit('add-task', newTask)
-      close() 
-    } else {
-      alert("Пожалуйста, заполните все поля")
+const title = ref('')
+const expireDate = ref('')
+const todos = ref<{ text: string; completed: boolean }[]>([])
+
+const addTodo = () => {
+  todos.value.push({ text: '', completed: false })
+}
+
+const removeTodo = (index: number) => {
+  todos.value.splice(index, 1)
+}
+
+const submitTask = () => {
+  if (title.value && todos.value.length > 0) {
+    const newTask = {
+      id: Date.now(), 
+      title: title.value,
+      todos: todos.value,
+      expireDate: expireDate.value
     }
+    emit('add-task', newTask)
+    close()
+  } else {
+    alert("Пожалуйста, заполните все поля и добавьте хотя бы одну подзадачу.")
   }
-  const close = () => {
-    emit('close')
-    title.value = ''
-    description.value = ''
-    expireDate.value = ''
-  }
-  </script>
+}
+
+const close = () => {
+  emit('close')
+  title.value = ''
+  expireDate.value = ''
+  todos.value = []
+}
+</script>
   
   <style  lang="scss">
 @use '~/assets/styles.scss' as *;
@@ -85,7 +110,6 @@
     background-color: var(--text-white);
     padding: 20px;
     max-width: 400px;
-    max-height: 400px;
     border-radius: 4px;
     margin: auto;
     margin-top: 150px;
@@ -111,13 +135,6 @@
     font-size: 1.25rem; 
   }
 
-  &__close-btn {
-    border: none;
-    background: none;
-    cursor: pointer;
-    font-size: 1.5rem; 
-  }
-
   &__body {
     display: flex;
     flex-direction: column;
@@ -129,8 +146,6 @@
   }
 
   &__input {
-    padding: 4px 0;
-    width: 100%;
     height: 2rem; 
     border: none;
     border-radius: 4px;
@@ -139,7 +154,28 @@
     margin-bottom: 1rem; 
     font-size: 1rem; 
     -webkit-transition: all 0.3s ease;
-    transition: all 0.3s ease; 
+    transition: all 0.3s ease;     
+    font-family: 'Nunito', sans-serif;
+    width: 100%;
+    padding: 0.5rem;
+    padding-left: 0;
+    text-indent: 0.25rem;
+    margin: 0.5rem 0;
+    
+  }
+  &__remove-btn {
+    background-color: var(--btn-cancel);
+    padding: 0.3125rem;
+    padding: 0.18rem 0.25rem;
+  }
+  &__add-btn {
+    background: var(--btn-succsess);
+    padding: 0.3125rem 0.625rem;
+    margin: 0.6rem;
+    
+    &:hover {
+      background-color: var(--btn-succsess-hover);
+    }
   }
 
   &__action {
@@ -149,10 +185,7 @@
 
   &__submit-btn {
     background: var(--btn-succsess);
-    color: var(--text-white);
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
+    padding: 0.625rem 1.25rem;
     
     &:hover {
       background-color: var(--btn-succsess-hover);
@@ -162,14 +195,35 @@
     transition: background-color 0.3s ease;
   }
 
+  &__close-btn {
+    background: var(--btn-cancel);
+    padding: 0.625rem 1.25rem;
+
+    &:hover {
+      background-color: var(--btn-cancel-hover);
+    }
+  }
+
   @media (max-width: 768px) {
     &__submit-btn {
       width: 100%; 
-      padding: 12px 0;
+      padding: 0.75rem 0;
       font-size: 1.1rem;
     }
   }
 }
+
+.add-task-dialog__add-todo-btn {
+  background-color: green;
+  padding: 5px;
+}
+
+.add-task-dialog__action {
+  display: flex;
+  justify-content: space-between;
+}
+
+
 
   </style>
   

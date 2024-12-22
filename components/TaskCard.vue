@@ -14,32 +14,70 @@
         <p>{{ task.expireDate }}</p>
         <img src="https://www.w3schools.com/howto/img_avatar.png" alt="avatar" class="task-card__avatar">
       </div>
+      <ul>
+        <li v-for="(todo, index) in visibleTodos" :key="todo.id" class="task-card__todo">
+          <!-- <input 
+            type="checkbox" 
+            v-model="todo.completed"
+            @change="updateTodoStatus(todo)"
+          /> -->
+          <span :class="{ 'completed': todo.completed }">{{ todo.text }}</span>
+        </li>
+        <li v-if="hasMoreTodos" @click="toggleExpand" class="task-card__expand">
+          ...
+        </li>
+      </ul>
     </div>
   </div>
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue'
+import { ref, computed } from 'vue';
 
 const props = defineProps({
   task: {
     type: Object,
     required: true
   }
-})
+});
 
-const emit = defineEmits(['delete-task', 'edit-task'])
+const emit = defineEmits(['delete-task', 'edit-task', 'update-todo-status']);
 
-const formattedDate = new Date(props.task.id).toLocaleString() 
+const formattedDate = new Date(props.task.id).toLocaleString();
 
 const deleteTask = () => {
-  emit('delete-task', props.task.id)
-}
+  emit('delete-task', props.task.id);
+};
 
 const editTask = () => {
-  emit('edit-task', props.task.id)
-}
+  emit('edit-task', props.task);
+};
+
+const updateTodoStatus = (todo) => {
+  emit('update-todo-status', todo);
+};
+
+const expanded = ref(false);
+
+const visibleTodos = computed(() => {
+  return expanded.value ? props.task.todos : props.task.todos.slice(0, 3);
+});
+
+const hasMoreTodos = computed(() => props.task.todos.length > 3);
+
+const toggleExpand = () => {
+  expanded.value = !expanded.value;
+};
 </script>
+
+
+<style scoped>
+.completed {
+  text-decoration: line-through;
+  color: gray;
+}
+</style>
+
 
 <style scoped lang="scss">
 @use '~/assets/styles.scss' as *;
@@ -103,6 +141,9 @@ const editTask = () => {
 
   &__info-text {
     font-size: 0.75rem;
+  }
+  &__expand {
+    cursor: pointer;
   }
 
   @media (max-width: 768px) {

@@ -12,12 +12,11 @@
         @delete-task="deleteTask"
         @edit-task="openEditModal(task)"
       />
+
     </div>
 
       <h3>Completed Task</h3>
-      <!-- <div v-for="(item, index) in [1, 2, 3, 4]" :key="index">
-        <TaskCard />
-      </div> -->
+      <!-- Тут будет задачи которые отмечены выполненными > -->
     </div>
     <AddTask
       v-if="isModalOpen"
@@ -29,6 +28,7 @@
       :task="selectedTask"
       @close="closeEditModal"
       @save-changes="saveTaskChanges"
+      @delete-task="deleteTask"
     />
 
 
@@ -43,9 +43,28 @@ import { ref } from "vue";
 
 
 const tasks = ref([
-  { id: 1, title: 'Задача 1', description: 'Описание задачи 1', expireDate: '2024-12-23' },
-  { id: 2, title: 'Задача 2', description: 'Описание задачи 2', expireDate: '2024-12-23' },
-  { id: 3, title: 'Задача 3', description: 'Описание задачи 3', expireDate: '2024-12-23' },
+  {
+    id: 1, 
+    title: 'Задача 1', 
+    description: 'Описание задачи 1', 
+    expireDate: '2024-12-23',
+    todos: [
+      { id: 1, text: 'Подзадача 1.1', completed: false },
+      { id: 2, text: 'Подзадача 1.2', completed: false },
+      { id: 3, text: 'Подзадача 1.3', completed: false },
+      { id: 4, text: 'Подзадача 1.4', completed: false },
+      { id: 5, text: 'Подзадача 1.5', completed: false }
+    ]
+  },
+  {
+    id: 2, 
+    title: 'Задача 2', 
+    description: 'Описание задачи 2', 
+    expireDate: '2024-12-23',
+    todos: [
+      { id: 1, text: 'Подзадача 2.1', completed: false }
+    ]
+  },
 ])
 
 const isModalOpen = ref(false)
@@ -58,22 +77,17 @@ const closeModal = () => {
   isModalOpen.value = false
 }
 
-const addNewTask = (newTask: { id: number; title: string; description: string; expireDate: string; }) => {
+const addNewTask = (newTask: { 
+  id: number; 
+  title: string; 
+  description: string; 
+  expireDate: string; 
+  todos: { id: number; text: string; 
+  completed: boolean }[] 
+  }) => {
   tasks.value.push(newTask)
   console.log('Обновленный список задач:', tasks.value) 
-
 }
-
-// const deleteTask = (taskId: number) => {
-//   tasks.value = tasks.value.filter(task => task.id !== taskId)
-// }
-
-// const editTask = (taskId: number) => {
-//   const task = tasks.value.find(task => task.id === taskId)
-//   if (task) {
-//     console.log('Редактирование задачи:', task)
-//   }
-// }
 
 
 const isEditModalOpen = ref(false)
@@ -82,7 +96,9 @@ type Task = {
   title: string;
   description: string;
   expireDate: string;
-}
+  todos: { id: number; text: string; completed: boolean }[];
+};
+
 
 const selectedTask = ref<Task | null>(null)
 
@@ -116,7 +132,7 @@ const deleteTask = (taskId: number) => {
 
 </script>
 
-<style  lang="scss">
+<style scoped lang="scss">
 @use '~/assets/styles.scss' as *;
 
 .todo {
@@ -151,6 +167,7 @@ const deleteTask = (taskId: number) => {
         background-color: var(--btn-succsess-hover);
       }
     }
+    
   }
 
   h2 {
