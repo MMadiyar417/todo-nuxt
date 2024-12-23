@@ -1,4 +1,5 @@
-FROM node:18 AS build
+
+FROM node:18
 
 WORKDIR /app
 
@@ -9,12 +10,6 @@ RUN npm install
 COPY . .
 
 RUN npm run build
-
-FROM node:18
-
-WORKDIR /app
-
-COPY --from=build /app /app
 
 EXPOSE 3000
 
