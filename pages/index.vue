@@ -2,72 +2,61 @@
   <div class="todo">
     <h2>Plan Your Day with To-Do Lists</h2>
     <div class="todo__task-list">
-      <div class="todo__add" >
-        <button class="btn todo__add-btn" @click="openModal" >Add new task</button>
+      <div class="todo__add">
+        <button class="btn todo__add-btn" @click="openModal">Add new task</button>
       </div>
       <h3>Active tasks</h3>
-      <div v-for="(task) in tasks" :key="task.id">
-      <TaskCard
-        :task="task"
-        @delete-task="deleteTask"
-        @edit-task="openEditModal(task)"
-      />
+      <div v-for="task in tasksStore.tasks" :key="task.id">
+        <TaskCard
+          :task="task"
+          @delete-task="deleteTask"
+          @edit-task="openEditModal(task)"
+        />
+      </div>
 
+      <h3>Completed tasks</h3>
+      <div v-for="task in tasksStore.completedTasks" :key="task.id">
+        <TaskCard
+          :task="task"
+          @delete-task="deleteTask"
+          @edit-task="openEditModal(task)"
+        />
+      </div>
     </div>
 
-      <h3>Completed Task</h3>
-      <!-- Тут будет задачи которые отмечены выполненными > -->
-    </div>
     <AddTask
       v-if="isModalOpen"
       @close="closeModal"
       @add-task="addNewTask"
     />
+
     <EditTask
       v-if="isEditModalOpen"
       :task="selectedTask"
       @close="closeEditModal"
       @save-changes="saveTaskChanges"
       @delete-task="deleteTask"
+      @mark-completed="markTaskAsCompleted"  
     />
-
-
   </div>
 </template>
 
 <script setup lang="ts">
-import AddTask from "~/components/AddTask.vue";
-import TaskCard from "~/components/TaskCard.vue";
-import { ref } from "vue";
+import { ref, onMounted } from 'vue'
+import { useTasksStore } from '~/stores/tasks'
+import AddTask from '~/components/AddTask.vue'
+import TaskCard from '~/components/TaskCard.vue'
+import EditTask from '~/components/EditTask.vue'
 
-
-
-const tasks = ref([
-  {
-    id: 1, 
-    title: 'Задача 1', 
-    description: 'Описание задачи 1', 
-    expireDate: '2024-12-23',
-    todos: [
-      { id: 1, text: 'Подзадача 1.1', completed: false },
-      { id: 2, text: 'Подзадача 1.2', completed: false },
-      { id: 3, text: 'Подзадача 1.3', completed: false },
-      { id: 4, text: 'Подзадача 1.4', completed: false },
-      { id: 5, text: 'Подзадача 1.5', completed: false }
-    ]
-  },
-  {
-    id: 2, 
-    title: 'Задача 2', 
-    description: 'Описание задачи 2', 
-    expireDate: '2024-12-23',
-    todos: [
-      { id: 1, text: 'Подзадача 2.1', completed: false }
-    ]
-  },
-])
+const tasksStore = useTasksStore()
 
 const isModalOpen = ref(false)
+const isEditModalOpen = ref(false)
+const selectedTask = ref(null)
+
+onMounted(() => {
+  tasksStore.initializeTasks()
+})
 
 const openModal = () => {
   isModalOpen.value = true
@@ -77,33 +66,11 @@ const closeModal = () => {
   isModalOpen.value = false
 }
 
-const addNewTask = (newTask: { 
-  id: number; 
-  title: string; 
-  description: string; 
-  expireDate: string; 
-  todos: { id: number; text: string; 
-  completed: boolean }[] 
-  }) => {
-  tasks.value.push(newTask)
-  console.log('Обновленный список задач:', tasks.value) 
+const addNewTask = (newTask: { id: number; title: string; description: string; expireDate: string; todos: { id: number; text: string; completed: boolean }[] }) => {
+  tasksStore.addTask(newTask)
 }
 
-
-const isEditModalOpen = ref(false)
-type Task = {
-  id: number;
-  title: string;
-  description: string;
-  expireDate: string;
-  todos: { id: number; text: string; completed: boolean }[];
-};
-
-
-const selectedTask = ref<Task | null>(null)
-
-
-const openEditModal = (task: Task) => {
+const openEditModal = (task: any) => {
   selectedTask.value = { ...task }
   isEditModalOpen.value = true
 }
@@ -113,24 +80,21 @@ const closeEditModal = () => {
   selectedTask.value = null
 }
 
-const saveTaskChanges = (updatedTask: Task) => {
-  const taskIndex = tasks.value.findIndex((t) => t.id === updatedTask.id)
-  if (taskIndex !== -1) {
-    tasks.value[taskIndex] = updatedTask
-  }
+const saveTaskChanges = (updatedTask: any) => {
+  tasksStore.updateTask(updatedTask)
   closeEditModal()
 }
 
 const deleteTask = (taskId: number) => {
-  const confirmation = window.confirm('Вы уверены, что хотите удалить эту задачу?')
-  if (confirmation) {
-    tasks.value = tasks.value.filter((task) => task.id !== taskId)
-  } else {
-    alert('Удаление отменено.')
-  }
+  tasksStore.deleteTask(taskId)
 }
 
+const markTaskAsCompleted = (taskId: number) => {
+  tasksStore.markTaskAsCompleted(taskId)
+  closeEditModal()  
+}
 </script>
+
 
 <style scoped lang="scss">
 @use '~/assets/styles.scss' as *;

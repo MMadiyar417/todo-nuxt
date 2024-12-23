@@ -10,6 +10,7 @@ export default defineNuxtConfig({
         download: true,
         inject: true
       }
-    }]
+    }],
+        '@pinia/nuxt'
   ]
 })

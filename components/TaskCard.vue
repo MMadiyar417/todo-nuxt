@@ -15,12 +15,7 @@
         <img src="https://www.w3schools.com/howto/img_avatar.png" alt="avatar" class="task-card__avatar">
       </div>
       <ul>
-        <li v-for="(todo, index) in visibleTodos" :key="todo.id" class="task-card__todo">
-          <!-- <input 
-            type="checkbox" 
-            v-model="todo.completed"
-            @change="updateTodoStatus(todo)"
-          /> -->
+        <li v-for="(todo) in visibleTodos" :key="todo.id" class="task-card__todo">
           <span :class="{ 'completed': todo.completed }">{{ todo.text }}</span>
         </li>
         <li v-if="hasMoreTodos" @click="toggleExpand" class="task-card__expand">
@@ -53,10 +48,6 @@ const editTask = () => {
   emit('edit-task', props.task);
 };
 
-const updateTodoStatus = (todo) => {
-  emit('update-todo-status', todo);
-};
-
 const expanded = ref(false);
 
 const visibleTodos = computed(() => {
@@ -69,15 +60,6 @@ const toggleExpand = () => {
   expanded.value = !expanded.value;
 };
 </script>
-
-
-<style scoped>
-.completed {
-  text-decoration: line-through;
-  color: gray;
-}
-</style>
-
 
 <style scoped lang="scss">
 @use '~/assets/styles.scss' as *;
@@ -144,6 +126,11 @@ const toggleExpand = () => {
   }
   &__expand {
     cursor: pointer;
+  }
+
+  .completed {
+    text-decoration: line-through;
+    color: var(--text-muted); 
   }
 
   @media (max-width: 768px) {

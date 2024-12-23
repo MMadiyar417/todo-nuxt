@@ -3,6 +3,7 @@
     <div class="add-task-dialog__content">
       <div class="add-task-dialog__header">
         <h2>Edit task</h2>
+        <button @click="markAsCompleted" class="btn add-task-dialog__completed-btn">Mark as Completed</button>
       </div>
       <div class="add-task-dialog__body">
         <label for="title" class="add-task-dialog__label">Task title</label>
@@ -21,6 +22,8 @@
             :id="'todo-' + index"
             class="add-task-dialog__input"
             placeholder="Subtask text"
+            :style="{ textDecoration: todo.completed ? 'line-through' : 'none' }"
+
           />
           <label>
             <input 
@@ -144,6 +147,12 @@ const close = () => {
     emit('close');
   }
 };
+
+const markAsCompleted = () => {
+  emit('mark-completed', props.task.id);
+};
+
+
 </script>
 
 
@@ -189,6 +198,12 @@ const close = () => {
     display: flex;
     justify-content: space-between;
     font-size: 1.25rem; 
+  }
+  &__completed-btn {
+    background-color: var(--btn-succsess);
+    &:hover {
+      background-color: var(--btn-succsess-hover);
+    }
   }
 
   &__body {

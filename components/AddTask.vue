@@ -79,7 +79,7 @@ const submitTask = () => {
     emit('add-task', newTask)
     close()
   } else {
-    alert("Пожалуйста, заполните все поля и добавьте хотя бы одну подзадачу.")
+    alert("Please fill all fields and add at least one subtask")
   }
 }
 
