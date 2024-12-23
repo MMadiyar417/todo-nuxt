@@ -1,75 +1,55 @@
-# Nuxt Minimal Starter
+# Todo Nuxt
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Это простое приложение "To-Do List" (Список дел), созданное с использованием Nuxt.js. Оно позволяет пользователям добавлять, редактировать, удалять задачи и управлять ими. Проект демонстрирует базовые возможности Nuxt.js, такие как маршрутизация, управление состоянием и компонентный подход.
 
-## Setup
+## Функции
 
-Make sure to install dependencies:
+- Добавление новых задач
+- Редактирование существующих задач
+- Удаление задач
+- Отметка задач как выполненных
+- Адаптивный дизайн для мобильных и десктопных устройств
 
-```bash
-# npm
-npm install
+## Используемые технологии
+- Nuxt.js 3 – Фреймворк для создания приложений с серверной отрисовкой (SSR), построенный на основе Vue 3.
+- Pinia – Современное средство для управления состоянием в приложениях на Vue 3.
+- @nuxtjs/google-fonts – Модуль для интеграции шрифтов Google в проект Nuxt.
+- Vue 3 – JavaScript фреймворк для создания UI-компонентов.
+- Vue Router – Для маршрутизации в приложении.
+- SASS – Для стилизации приложения.
+- LocalStorage – Для сохранения задач при перезагрузке страницы
 
-# pnpm
-pnpm install
+## Установка
+### 1Клонируйте репозиторий
+Клонируйте проект на свой локальный компьютер:
+`git clone https://github.com/MMadiyar417/todo-nuxt.git`
+`cd todo-nuxt`
+`npm install`
+`npm run dev`
 
-# yarn
-yarn install
+## Docker
+### Сборка и запуск с помощью Docker
+Этот проект поддерживает запуск в контейнере Docker. Вы можете использовать Docker, чтобы создать изолированную среду для вашего приложения. Для этого выполните следующие шаги.
+### Сборка Docker-образа
 
-# bun
-bun install
+`docker build -t todo-nuxt .`
+## Запуск Docker-контейнера
+После того, как образ был собран, вы можете запустить приложение в контейнере:
+`docker run -p 3000:3000 todo-nuxt`
+
+## Запуск с Docker Compose
+Если вы хотите использовать docker-compose для управления контейнерами, можно воспользоваться примером конфигурации.
+Создайте файл docker-compose.yml в корне проекта:
 ```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
+version: '3'
+services:
+  todo-nuxt:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
 ```
+## Теперь, чтобы собрать и запустить контейнеры, выполните команду:
+`docker-compose up --build`
 
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
